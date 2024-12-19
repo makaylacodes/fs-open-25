@@ -27,6 +27,13 @@ const StatisticsLine = ({valueText, value}) => {
 const Statistics = ({good, bad, neutral}) =>{
   const total = good+ bad+ neutral
   const average = ((good*1)+(neutral*0)+(bad*1))/ total
+
+  // Simple conditional rendering, if no votes displays a message otherwise displays all statistics
+  if (good, bad, neutral === 0){
+    return(
+      <div>No Feedback Given</div>
+    )
+  }
   return(
     <div>
       <StatisticsLine valueText={"Good"} value={good} />
