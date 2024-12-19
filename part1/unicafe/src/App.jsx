@@ -9,12 +9,14 @@ const Header = ({title}) => {
   )
 }
 
+// Exercise 1.10 Button into it's own component 
 const Button = ({onCLick, text}) => {
   return(
       <button onClick={onCLick}>{text}</button>
   )
 }
 
+// Exercise 1.10 StatisticsLine into it's own component 
 const StatisticsLine = ({valueText, value}) => {
   return(
     <div>
