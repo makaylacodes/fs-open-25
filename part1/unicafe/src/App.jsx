@@ -15,13 +15,31 @@ const Button = ({onCLick, text}) => {
   )
 }
 
-const Statistics = ({valueText, value}) => {
+const StatisticsLine = ({valueText, value}) => {
   return(
     <div>
       <p>{valueText}  {value} </p>
     </div>
   )
 }
+
+//Holds all of the statistics lines
+const Statistics = ({good, bad, neutral}) =>{
+  const total = good+ bad+ neutral
+  const average = ((good*1)+(neutral*0)+(bad*1))/ total
+  return(
+    <div>
+      <StatisticsLine valueText={"Good"} value={good} />
+      <StatisticsLine valueText={"Neutral"} value={neutral} />
+      <StatisticsLine valueText={"Bad"} value={bad} />
+      <StatisticsLine valueText={"All"} value={total} /> {/* adds all the votes together */}
+      <StatisticsLine valueText={"Average"} value={average} /> {/* adds all the votes together */}
+      <StatisticsLine valueText={"Positive"} value={(good/(good+neutral+bad))*100 + "   %"} /> {/* adds all the votes together */}
+      
+    </div>
+  )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
@@ -40,8 +58,7 @@ const App = () => {
     setBad(bad +1)
   }
 
-  const total = good+ bad+ neutral
-  const average = ((good*1)+(neutral*0)+(bad*1))/ total
+  
   
   return (
     <div>
@@ -54,13 +71,7 @@ const App = () => {
       
       
       <Header title={"Statistics"} />
-      <Statistics valueText={"Good"} value={good} />
-      <Statistics valueText={"Neutral"} value={neutral} />
-      <Statistics valueText={"Bad"} value={bad} />
-      <Statistics valueText={"All"} value={total} /> {/* adds all the votes together */}
-      <Statistics valueText={"Average"} value={average} /> {/* adds all the votes together */}
-      <Statistics valueText={"Positive"} value={(good/(good+neutral+bad))*100 + "   %"} /> {/* adds all the votes together */}
-      
+      <Statistics good={good} bad={bad} neutral={neutral} />
     </div>
   )
 }
