@@ -19,9 +19,7 @@ const Button = ({onCLick, text}) => {
 // Exercise 1.10 StatisticsLine into it's own component 
 const StatisticsLine = ({valueText, value}) => {
   return(
-    <div>
-      <p>{valueText}  {value} </p>
-    </div>
+      <td><p>{valueText}  {value} </p></td>
   )
 }
 
@@ -38,13 +36,16 @@ const Statistics = ({good, bad, neutral}) =>{
   }
   return(
     <div>
-      <StatisticsLine valueText={"Good"} value={good} />
-      <StatisticsLine valueText={"Neutral"} value={neutral} />
-      <StatisticsLine valueText={"Bad"} value={bad} />
-      <StatisticsLine valueText={"All"} value={total} /> {/* adds all the votes together */}
-      <StatisticsLine valueText={"Average"} value={average} /> {/* adds all the votes together */}
-      <StatisticsLine valueText={"Positive"} value={(good/(good+neutral+bad))*100 + "   %"} /> {/* adds all the votes together */}
-      
+      <table>
+        <tbody>
+          <tr><StatisticsLine valueText={"Good"} value={good} /></tr>
+          <tr><StatisticsLine valueText={"Neutral"} value={neutral} /></tr>
+          <tr><StatisticsLine valueText={"Bad"} value={bad} /></tr>
+          <tr><StatisticsLine valueText={"All"} value={total} /></tr>{/* adds all the votes together */}
+          <tr><StatisticsLine valueText={"Average"} value={average} /></tr>{/* adds all the votes together */}
+          <tr><StatisticsLine valueText={"Positive"} value={(good/(good+neutral+bad))*100 + "   %"} /></tr>{/* adds all the votes together */}
+        </tbody>
+      </table>
     </div>
   )
 }
