@@ -1,5 +1,44 @@
 import { useState } from 'react'
 
+const ReturnMostVotes = ({votes, anecdotes}) => {
+  const highestVoteValue = Math.max(...votes);
+  console.log("highest value in votes " + highestVoteValue)
+  const highestVoteIndex = votes.indexOf(highestVoteValue);
+  const mostVotes = anecdotes[highestVoteIndex]
+  console.log("Anecdote with the highest votes: " + mostVotes + "and has " + highestVoteValue );
+
+  return (
+    <div>
+      <h4> {"\""+ mostVotes + "\""} </h4>
+     <p> There are {highestVoteValue } votes</p> 
+    </div>
+  )
+  
+}
+
+const Title = ({text}) => {
+  return(
+    <h1>{text}</h1>
+  )
+}
+
+const Button = ({onClick, text}) => {
+  return(
+      <button onClick={onClick}>
+        {text}
+      </button>
+  )
+}
+
+const Anecdote = ({anecdotes, votes}) => {
+  return(
+    <div>
+      <h4> {"\""+ anecdotes + "\""} </h4>
+      <p>Has {votes} votes </p>
+    </div>
+  )
+}
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -11,30 +50,48 @@ const App = () => {
     'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
     'The only way to go fast, is to go well.'
   ]
-   
+  
+  const size = anecdotes.length
   const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
 
   // This function generates a random number based on the length of the anecdotes array
-  const randomGenerator = ({anecdotes}) => {
-    const size = anecdotes.length
+  const randomGenerator = () => {
     console.log("This is array size " + size)
     return Math.floor(Math.random() * size);
   }
 
   // This function is an event handler, when the button is clicked, a random element of the anecdotes array is selected
-  const onClick = () =>{
-    console.log(anecdotes.length)
-    setSelected(randomGenerator({anecdotes}))
+  const nextAnecdote = () =>{
+    console.log(size)
+    setSelected(randomGenerator())
+  }
+
+  // This function is an event handler, when the button is clicked, the current element receives a vote
+  const vote = () =>{
+    // copy the vote array into new variable
+    const updatedVotes = [...votes]
+    // update the current element by adding one
+    updatedVotes[selected] += 1
+    console.log(updatedVotes)
+    // updates the votes array with votes for the corresponding anecdotes
+    setVotes(updatedVotes)
   }
 
   return (
     <div>
-      <h4>
-        {anecdotes[selected]}
-      </h4>
-      <button onClick={onClick}>
-        Next Anecdote
-        </button>
+
+      <Title text={"Anecdote of the Day"} />
+      <Anecdote anecdotes={anecdotes[selected]} votes={votes[selected]} />
+     
+      <div>
+        <Button onClick={vote} text={"Vote"}/>
+        <Button onClick={nextAnecdote} text={"Next Anecdote"}/>
+      </div>
+      
+      <Title text={"Anecdotes with most votes"} />
+      <ReturnMostVotes votes={votes} anecdotes={anecdotes}/>
+
     </div>
   )
 }
