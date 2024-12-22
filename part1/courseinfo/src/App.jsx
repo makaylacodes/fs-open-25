@@ -1,83 +1,123 @@
-const Header = (props) => {
-  console.log("Header component props: ", props)
+// Header component, title of curriculum
+const Header = ({text}) => {
+  return (
+    <h1>{text}</h1>
+  )
+}
+
+// Component displays all information for one course
+const Course = ({course}) => {
   return (
     <div>
-      <h1>{props.course}</h1>
+      <Subtitle course={course}  />
+      {course.parts.map(part => {
+        console.log(`  Part: ${part.name}, Exercises: ${part.exercises}`)
+        return (
+          <div key={part.id}>
+            <Part part={part} />
+          </div>
+        )
+      })}
+
+      <Total course={course.parts} />
     </div>
   )
 }
 
-// Used map to display all elements inside of course.parts, which has course name and # of exercises
-const Content = ({parts}) => {
-  console.log("Content component props: ", parts)
-  
-  return (
-    <div >
-      {parts.map(part => <p key={part.id}>{part.name} : {part.exercises}</p>) }
-    </div>
+// Component displays the course heading
+const Subtitle = ({course}) => {
+  return(
+    <h3>{course.name} </h3> 
+  )
+}
+// Component displays the all parts and corresponding exercises in the course
+const Part =({part}) => {
+  return(
+    <p>{part.name} , Exercises: {part.exercises}</p>
   )
 }
 
-// USE REDUCE
-const Total = ({parts}) => {
-  console.log("Total component props: ", parts)
-  const total = parts.reduce((total, part) => {
+// Component displays total # of exercises in the course
+const Total = ({course}) => {
+  const total = course.reduce((total, part) => {
     return total + part.exercises
   }, 0)
+
   return (
     <div>
-      {/* Below calls on the variable inside of the App component. Specifies course.part array location to add the exercise values */}
      <p>Total of <b>{total} </b>  exercises</p>
     </div>
   )
 }
 
-const Course = ({course}) => {
+const Content = ({courses}) => {
+  // Variable uses map to go through all the course elements in the courses array. For each course element, the 
+  // course component is called to display all relevant data
+ const content = courses.map(course => {
+    console.log(`Course: ${course.name}`)
 
-  return (
-    <div>
-      <Header course={course.name} /> {/* loads data from course in variable course*/}
-      <Content parts={course.parts} /> {/* loads data from parts and saves array in variable parts; this has the parts exercise and name data*/}
-      <Total parts= {course.parts} /> {/* loads data from parts and saves array in variable parts; this has the parts exercise and name data*/}
-      
-    </div>
-  )
+    return(
+      <div key={course.id}>
+        <Course course={course} />
+      </div>
+    )
+  })
+
+  return content
 }
 
 const App = () => {
 
-  const course = {
-    id: 1,
-    name: 'Half Stack application development',
-    parts: [
-      {
-        name: 'Fundamentals of React',
-        exercises: 10,
-        id: 1,
-      },
-      {
-        name: 'Using props to pass data',
-        exercises: 7,
-        id: 2,
-      },
-      {
-        name: 'State of a component',
-        exercises: 14,
-        id: 3
-      },
-      {
-        name: 'Redux',
-        exercises: 11,
-        id: 4
-      }
-    ]
-  }
-
+  const courses = [
+    {
+      name: 'Half Stack application development',
+      id: 1,
+      parts: [
+        {
+          name: 'Fundamentals of React',
+          exercises: 10,
+          id: 1
+        },
+        {
+          name: 'Using props to pass data',
+          exercises: 7,
+          id: 2
+        },
+        {
+          name: 'State of a component',
+          exercises: 14,
+          id: 3
+        },
+        {
+          name: 'Redux',
+          exercises: 11,
+          id: 4
+        }
+      ]
+    }, 
+    {
+      name: 'Node.js',
+      id: 2,
+      parts: [
+        {
+          name: 'Routing',
+          exercises: 3,
+          id: 1
+        },
+        {
+          name: 'Middlewares',
+          exercises: 7,
+          id: 2
+        }
+      ]
+    }
+  ]
 
   return (
     <div>
-      <Course course={course} />
+      <Header text={"Web Development Curriculum"} />
       
+      <Content courses={courses} />
     </div>
   )
 }
