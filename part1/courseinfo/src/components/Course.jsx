@@ -3,6 +3,7 @@ const Course = ({course}) => {
     return (
       <div>
         <Subtitle course={course}  />
+        
         {course.parts.map(part => {
           console.log(`  Part: ${part.name}, Exercises: ${part.exercises}`)
           return (
