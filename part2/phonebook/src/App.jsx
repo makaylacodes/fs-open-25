@@ -11,15 +11,17 @@ const Person = ({person}) => {
 // Titles
 const Title = ({text}) => {
   return (
-    <h2>{text}</h2>
+    <h3>{text}</h3>
   )
 }
 
 // Form to add a new person
 const Form = ({addPerson, newName, newNumber, onNameChange, onNumChange}) => {
-
   return (
     <form onSubmit={addPerson}>
+
+      <Title text={"Add a new"} />
+
       <div>
         Name: <input value={newName} onChange={onNameChange} />
         Number: <input value={newNumber} onChange={onNumChange} />
@@ -35,24 +37,39 @@ const Form = ({addPerson, newName, newNumber, onNameChange, onNumChange}) => {
 // Component returns a list of all the people stored in the persons object
 const Persons = ({persons}) => {
   return (
-    <ol>
-      {persons.map(person => {
-        return(
-          <div key={person.name}>
-            <Person person={person} />
-          </div> 
-        )
-      })}
-    </ol> 
+    <div>
+      <Title text={"Numbers"} />
+      <ol>
+        {persons.map(person => {
+          return(
+            <div key={person.name}>
+              <Person person={person} />
+            </div> 
+          )
+        })}
+      </ol> 
+    </div>
+  )
+}
+
+const Filter = ({search, onChange}) => {
+  return(
+    <div>
+      Search: <input value={search} onChange={onChange} />
+    </div>
   )
 }
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-12-34567' }
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ]) 
   const [newName, setName] = useState('')
   const [newNumber, setNumber] = useState('')
+  const [search, setSearch] = useState('')
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -78,24 +95,31 @@ const App = () => {
   }
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
     setName(event.target.value)
   }
 
   const handleNumChange = (event) => {
-    console.log(event.target.value)
     setNumber(event.target.value)
   }
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value)
+  }
+
+  // Saves a list of people that match the name in the search. If no search input, 
+  // then the whole list of people is returned
+  const filteredPersons = search
+    ? persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
+    : persons;
 
   return (
     <div>
 
-      <Title text={"Phonebook"} />
+      <h2>Phonebook</h2>
       <Form addPerson={addPerson} newName={newName} newNumber={newNumber} onNameChange={handleNameChange} onNumChange={handleNumChange}/>
       <br />
-
-      <Title text={"Numbers"} />
-      <Persons persons={persons} />  
+      <Filter search={search} onChange={handleSearchChange} />
+      <Persons persons={filteredPersons} />  
 
     </div>
   )
