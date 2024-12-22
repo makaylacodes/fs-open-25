@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import personService from './services/persons'
 
 // Passed the whole object for person, displays individual names
 const Person = ({person}) => {
@@ -69,10 +70,9 @@ const App = () => {
 
   const hook = () => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    personService
+      .getAll()
       .then(response => {
-        console.log('promise fulfilled')
         setPersons(response.data)
       })
   }
@@ -90,16 +90,23 @@ const App = () => {
       return; // Exit the function
     }
 
+    // keeps the ids in numerical order
+    const maxId = persons.length > 0 ? Math.max(...persons.map(person => person.id)) : 0;
+
     // creates a new object with provided input
     const personObject = {
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: maxId + 1
     }
 
-    // adds the new person object to the persons list
-    setPersons(persons.concat(personObject))
-    setName('')
-    setNumber('')
+    personService
+      .create(personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setName('')
+        setNumber('')
+      })
   }
 
   const handleNameChange = (event) => {
