@@ -19,12 +19,15 @@ const Content = ({parts}) => {
 }
 
 // USE REDUCE
-const Total = (props) => {
-  console.log("Total component props: ", props)
+const Total = ({parts}) => {
+  console.log("Total component props: ", parts)
+  const total = parts.reduce((total, part) => {
+    return total + part.exercises
+  }, 0)
   return (
     <div>
       {/* Below calls on the variable inside of the App component. Specifies course.part array location to add the exercise values */}
-      <p>Number of exercises {props.parts[0].exercises +props.parts[1].exercises +props.parts[2].exercises }</p>
+     <p>Total of <b>{total} </b>  exercises</p>
     </div>
   )
 }
@@ -61,6 +64,11 @@ const App = () => {
         name: 'State of a component',
         exercises: 14,
         id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
       }
     ]
   }
