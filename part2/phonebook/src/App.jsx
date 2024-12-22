@@ -56,10 +56,18 @@ const App = () => {
     event.preventDefault()
     console.log('button clicked')
 
+    // If name already exists in the list, prevented from adding + a notice
+    if (persons.some(person => person.name === newPerson)) {
+      alert(`${newPerson} is already added to phonebook`);
+      return; // Exit the function
+    }
+
+    // creates a new object with provided input
     const personObject = {
       name: newPerson
     }
 
+    // adds the new person object to the persons list
     setPersons(persons.concat(personObject))
     setPerson('')
   }
