@@ -53,6 +53,8 @@ const Persons = ({persons, onClick}) => {
   )
 }
 
+
+// This is affected by the update function I put it, look into lowercases 
 const Filter = ({search, onChange}) => {
   return(
     <div>
