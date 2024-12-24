@@ -3,9 +3,11 @@ import personService from './services/persons'
 
 // Passed the whole object for person, displays individual names
 const Person = ({person, onClick}) => {
-  console.log(`This person's name is ${person.name}`)
+  const capitalize = (str) => {
+    return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
+  }
   return (
-    <li key={person.id}> {person.name} : {person.number} <button onClick={() => onClick(person.id)}>Delete</button> </li>
+    <li key={person.id}> {capitalize(person.name)} : {person.number} <button onClick={() => onClick(person.id)}>Delete</button> </li>
   )
 }
 
@@ -65,102 +67,128 @@ const Filter = ({search, onChange}) => {
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
-  const [newName, setName] = useState('')
-  const [newNumber, setNumber] = useState('')
-  const [search, setSearch] = useState('')
+  const [newName, setName] = useState("")
+  const [newNumber, setNumber] = useState("")
+  const [search, setSearch] = useState("")
 
   const hook = () => {
     console.log('effect')
     personService
       .getAll()
       .then(response => {
-        setPersons(response.data)
+        const lowerCasePersons = response.data.map(person => ({
+          ...person,
+          name: person.name.toLowerCase(), // Convert name to lowercase
+        }))
+        setPersons(lowerCasePersons)
       })
   }
   useEffect(hook, [])
   console.log('render', persons.length, 'persons')
 
   const addPerson = (event) => {
+    // Without the line below, page auto refreshes at the end of this function, clearing console
+    // Maybe takeout when done developing
     event.preventDefault()
-    console.log('button clicked')
-  // keeps the ids in numerical order
+    console.log(`Add person was clicked, this is the event `, event)
+
+    // keeps the ids in numerical order
     const maxId = persons.length > 0 ? Math.max(...persons.map(person => person.id)) : 0;
 
     // Saves id as a string instead of int
     const newId = (maxId + 1).toString()
-    // creates a new object with provided input
+
     
 
-    const person = persons.filter(person => person.name === newName);
+   // const personInit = persons.filter(person => person.name === newName)[0]
+    //const person = {...personInit}
+   // console.log("This is person id : ", person.id)
 
-
-    const personBool = persons.find((person) => person.name === newName && person.number === newNumber);
+    // this is {}, just one object where as person is an object in an array
     const personObject = {
       name: newName,
       number: newNumber,
       id: newId
     }
-    const sameId = person[0].id
-    const updatedPersonObject = {
-      name: newName,
-      number: newNumber,
-      id: sameId 
-    }
-    console.log("This is the person containing result", person)
-    console.log("This is the person containing result, ID ", sameId)
-    console.log("This is the new number ", personObject.number);
-    console.log("This is the person object with new number", personObject)
-    
+    // For objects, important to use a comma otherwise console tries to read everything as a string instead of object with elements
+    console.log(`personObject for new person is : `, personObject)
+    console.log(`personObject name is : `, personObject.name)
+    console.log(`personObject number is : `, personObject.number)
+    console.log(`personObject id is : `, personObject.id)
+
+
+    // returns true or false
+    const samePerson = persons.some((person) => (person.name === personObject.name && person.number === newNumber));
+    console.log("This is the same person bool object ", samePerson)
+
     // If name already exists in the list, prevented from adding + a notice
-    if (personBool) {
-      alert(`${newName} is already added to phonebook`);
+    if (samePerson) {
+      alert(`${personObject.name} is already added to phonebook`)
       console.log("Name already in phonebook, return")
-      return; // Exit the function
+      return // Exit the function
     } 
 
-    const result =  persons.find(person => person.name === newName && person.number !== newNumber) //if name is found in the db
-    ? update(updatedPersonObject) //user is given choice to update the phone number
-    : personService //if name is not found, the new person is added to the db
-      .create(personObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson));
-        setName('');
-        setNumber('');
-      });
+    // returns true or false
+    const sameName = persons.some((person) => person.name === personObject.name );
+    console.log("This is the same NAME bool object ", sameName)
+    // If name already exists in the list, 
+    if (sameName){
+      // Gives option to update the contact
+      if (window.confirm(`${newName} is already added to the phonebook. Replace the old number with the new one?`)){
+        updatePerson()
+      }
+      // if clicked no, then the fields stay populated but server is not updated
+      return // Exit the function 
+    } 
 
-      return result;
+   const addPersonService = personService
+    .create(personObject)
+    .then(() => {
+      setPersons(persons.concat(personObject));
+      setName('')
+      setNumber('')
+    })
+    .catch(error => {
+      alert(`There was an error adding to the server`);
+    }) 
+
+    console.log("Successfully added person")
+    return addPersonService
   }
 
-  const update = (person) => {
-    console.log("First message inside of update, acknowledge same name and different number")
-    const confirmUpdate = window.confirm(`${newName} is already added to the phonebook. Replace the old number with the new one?` )
-    console.log(`This is id ${person.id}`)
-  
+  const updatePerson = () => {
+    console.log("UpdatePerson function was successfully called ")
+    
+    // Filters out the person with the same name as the search, only use for and update. 
+    // Big reminder to use "let" so the resulting object is properly saved, missed that and caused undefined because const can't be changed
+    let personToUpdate = persons.find((person) => person.name === newName) 
+    
+    console.log("This is person to update id: ", personToUpdate.id)
+    const updatedPersonObject = {
+        name: newName,
+        number: newNumber,
+        id: personToUpdate.id
+      }
+    // For objects, important to use a comma otherwise console tries to read everything as a string instead of object with elements
+    console.log(`updatedPersonObject for updated person is : `, updatedPersonObject)
+    console.log(`updatedPersonObject name is : `, updatedPersonObject.name)
+    console.log(`updatedPersonObject number is : `, updatedPersonObject.number)
+    console.log(`updatedPersonObject id is : `, updatedPersonObject.id)
 
-    if (confirmUpdate) {
-      console.log("Yes was clicked");
-      console.log(`This is the person object ${person.name}`)
-
-      const changedPerson = { ...person}
-
-      changedPerson.number = person.number
-      console.log(`This is the changed person ${changedPerson.number}`)
-
-      console.log(`This is the changed person id ${changedPerson.id}`)
-      
-      return (
-        personService
-        .update(person.id, changedPerson)
-        .then(updatedPerson => {
-          setPersons(persons.map(person => person.id !== changedPerson.id ? person : updatedPerson))
-          setName('')
-          setNumber('')
-        })
-      )
-    }
+    const updatePersonService = personService
+    .update(updatedPersonObject.id, updatedPersonObject)
+    .then(() => {
+      setPersons(persons.map(person => person.id != updatedPersonObject.id ? person : updatedPersonObject));
+      setName('')
+      setNumber('')
+    })
+    .catch(error => {
+      alert(`There was an error updating the person in the server`)
+    }) 
+    console.log("Successfully updated person")
+   return updatePersonService
+    
   }
-
-  
   const handleNameChange = (event) => {
     setName(event.target.value)
   }
@@ -170,11 +198,12 @@ const App = () => {
   }
 
   const handleSearchChange = (event) => {
-    setSearch(event.target.value)
+    setSearch(event.target.value.toLowerCase())
   }
   const deletePerson = (id) => {
     // Saves the person object with the id being deleted
     const personToDelete = persons.find(person => person.id === id);
+    console.log("This is person to delete id: ", personToDelete.id)
 
     if (personToDelete && window.confirm(`Delete ${personToDelete.name}?`)) {
     // calls axios service to delete the person with the matching id
@@ -188,6 +217,7 @@ const App = () => {
           alert(`The person '${personToDelete.name}' was already deleted from the server`);
         })
   }}
+
   // Saves a list of people that match the name in the search. If no search input, 
   // then the whole list of people is returned
   const filteredPersons = search
