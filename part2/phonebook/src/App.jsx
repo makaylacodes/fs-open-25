@@ -221,7 +221,7 @@ const App = () => {
   // Saves a list of people that match the name in the search. If no search input, 
   // then the whole list of people is returned
   const filteredPersons = search
-    ? persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
+    ? persons.filter(person => person.name.includes(search))
     : persons;
 
   return (
