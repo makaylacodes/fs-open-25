@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import './index.css'
 
 // Passed the whole object for person, displays individual names
 const Person = ({person, onClick}) => {
@@ -65,12 +66,28 @@ const Filter = ({search, onChange}) => {
   )
 }
 
+const Notification = ({message, errorEffect}) => {
+  if (message === null) {
+    return null
+  }
+  
+  console.log(message)
+  return (
+    <div className='error'>
+      {message}
+      {errorEffect}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setName] = useState("")
   const [newNumber, setNumber] = useState("")
   const [search, setSearch] = useState("")
+  const [errorMessage, setErrorMessage] = useState("some error happened")
 
+  // fetches all persons listed in server
   const hook = () => {
     console.log('effect')
     personService
@@ -78,12 +95,25 @@ const App = () => {
       .then(response => {
         const lowerCasePersons = response.data.map(person => ({
           ...person,
-          name: person.name.toLowerCase(), // Convert name to lowercase
+          name: person.name.toLowerCase(), // Convert name to lowercase for easy search
         }))
         setPersons(lowerCasePersons)
       })
   }
   useEffect(hook, [])
+
+  // Renders the error message
+  const errorEffect = () => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
+     
+      return () => clearTimeout(timer); // Cleanup timer on component unmount or if errorMessage changes
+    }
+  }
+  useEffect(errorEffect, [errorMessage])
+
   console.log('render', persons.length, 'persons')
 
   const addPerson = (event) => {
@@ -120,9 +150,10 @@ const App = () => {
     // returns true or false
     const samePerson = persons.some((person) => (person.name === personObject.name && person.number === newNumber));
     console.log("This is the same person bool object ", samePerson)
-
+    
     // If name already exists in the list, prevented from adding + a notice
     if (samePerson) {
+      setErrorMessage(`Person '${personObject.name}' is already in server`)
       alert(`${personObject.name} is already added to phonebook`)
       console.log("Name already in phonebook, return")
       return // Exit the function
@@ -147,6 +178,7 @@ const App = () => {
       setPersons(persons.concat(personObject));
       setName('')
       setNumber('')
+      setErrorMessage(`Added ${personObject.name}`)
     })
     .catch(error => {
       alert(`There was an error adding to the server`);
@@ -181,6 +213,7 @@ const App = () => {
       setPersons(persons.map(person => person.id != updatedPersonObject.id ? person : updatedPersonObject));
       setName('')
       setNumber('')
+      setErrorMessage(`${updatedPersonObject.name} updated in server`)
     })
     .catch(error => {
       alert(`There was an error updating the person in the server`)
@@ -211,7 +244,8 @@ const App = () => {
         .deletes(personToDelete.id)
         .then(() => {
           // returns and stores list in persons variable and excludes the deleted person
-          setPersons(persons.filter(person => person.id !== personToDelete.id));
+          setPersons(persons.filter(person => person.id !== personToDelete.id))
+          setErrorMessage(`${personToDelete.name} deleted in server`)
         })
         .catch(error => {
           alert(`The person '${personToDelete.name}' was already deleted from the server`);
@@ -228,6 +262,8 @@ const App = () => {
     <div>
 
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} errorEffect= {errorEffect} />
+      
       <Form addPerson={addPerson} newName={newName} newNumber={newNumber} onNameChange={handleNameChange} onNumChange={handleNumChange}/>
       <br />
       <Filter search={search} onChange={handleSearchChange} />
