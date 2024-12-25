@@ -9,10 +9,10 @@ const Search = ({search, onChange}) => {
   )
 }
 
-const CountryList = ({country}) => {
+const CountryList = ({country, onShow}) => {
   console.log("This is country name", country.name.common)
   return (
-    <li>{country.name.common}</li>
+    <li>{country.name.common} <button onClick={() => onShow(country)}>Show</button> </li>
   )
 }
 
@@ -43,6 +43,7 @@ const Country = ({country}) => {
 const App = () => {
   const [countries, setCountries] = useState([])
   const [search, setSearch] = useState("")
+  const [selected, setSelected]  = useState(null)
 
   // fetches all persons listed in server
   const hook = () => {
@@ -60,6 +61,7 @@ const App = () => {
     console.log("This is onsearch change, sets the value of country")
     setSearch(event.target.value)
     console.log("This is the search value : ", search)
+    setSelected(null)
   }
 
   // Filter countries based on search
@@ -67,13 +69,13 @@ const App = () => {
     country.name.common.toLowerCase().includes(search.toLowerCase())
   )
 
-  let content = filteredCountries.length === 1
-  ? <Country country={filteredCountries[0]} />
-  : filteredCountries.length < 10
-    ? filteredCountries.map(country => <CountryList key={country.cca3} country={country} />)
-    : <p>Too many results, please be more specific.</p> 
-   // else if (){
-    //  return filteredCountries.map(country => <Country country={country} /> )
+  let content = selected // if selected value is not null
+  ? <Country country={selected} /> // display the component that displays all info for one specific country in list
+  : filteredCountries.length === 1 // else if there's only one matching result in list
+    ? <Country country={filteredCountries[0]} /> // return component with all info for that specific country
+    : filteredCountries.length < 10 // else if there are 10 or less matches
+      ? filteredCountries.map(country => <CountryList key={country.cca3} country={country} onShow={setSelected}/>) // display matches in a list with only country names
+      : <p>Too many results, please be more specific.</p> // else there are too many results, need to be more specific
 
   return (
     <div>
