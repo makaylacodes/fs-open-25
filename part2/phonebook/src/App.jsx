@@ -128,13 +128,15 @@ const App = () => {
     // Saves id as a string instead of int
     const newId = (maxId + 1).toString()
 
-    
-
+    const capitalize = (str) => {
+      return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
+    }
    // const personInit = persons.filter(person => person.name === newName)[0]
     //const person = {...personInit}
    // console.log("This is person id : ", person.id)
 
     // this is {}, just one object where as person is an object in an array
+
     const personObject = {
       name: newName,
       number: newNumber,
@@ -153,8 +155,8 @@ const App = () => {
     
     // If name already exists in the list, prevented from adding + a notice
     if (samePerson) {
-      setErrorMessage(`Person '${personObject.name}' is already in server`)
-      alert(`${personObject.name} is already added to phonebook`)
+      setErrorMessage(`Person '${capitalize(personObject.name)}' is already in server`)
+      alert(`${capitalize(personObject.name)} is already added to phonebook`)
       console.log("Name already in phonebook, return")
       return // Exit the function
     } 
@@ -165,7 +167,7 @@ const App = () => {
     // If name already exists in the list, 
     if (sameName){
       // Gives option to update the contact
-      if (window.confirm(`${newName} is already added to the phonebook. Replace the old number with the new one?`)){
+      if (window.confirm(`${capitalize(newName)} is already added to the phonebook. Replace the old number with the new one?`)){
         updatePerson()
       }
       // if clicked no, then the fields stay populated but server is not updated
@@ -196,10 +198,14 @@ const App = () => {
     let personToUpdate = persons.find((person) => person.name === newName) 
     
     console.log("This is person to update id: ", personToUpdate.id)
+
     const updatedPersonObject = {
         name: newName,
         number: newNumber,
         id: personToUpdate.id
+      }
+    const capitalize = (str) => {
+        return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
       }
     // For objects, important to use a comma otherwise console tries to read everything as a string instead of object with elements
     console.log(`updatedPersonObject for updated person is : `, updatedPersonObject)
@@ -216,6 +222,7 @@ const App = () => {
       setErrorMessage(`${updatedPersonObject.name} updated in server`)
     })
     .catch(error => {
+      setErrorMessage(`Information of ${capitalize(updatedPersonObject.name)} was already deleted from the server`)
       alert(`There was an error updating the person in the server`)
     }) 
     console.log("Successfully updated person")
@@ -237,8 +244,10 @@ const App = () => {
     // Saves the person object with the id being deleted
     const personToDelete = persons.find(person => person.id === id);
     console.log("This is person to delete id: ", personToDelete.id)
-
-    if (personToDelete && window.confirm(`Delete ${personToDelete.name}?`)) {
+    const capitalize = (str) => {
+      return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
+    }
+    if (personToDelete && window.confirm(`Delete ${capitalize(personToDelete.name)}?`)) {
     // calls axios service to delete the person with the matching id
     personService
         .deletes(personToDelete.id)
@@ -248,7 +257,8 @@ const App = () => {
           setErrorMessage(`${personToDelete.name} deleted in server`)
         })
         .catch(error => {
-          alert(`The person '${personToDelete.name}' was already deleted from the server`);
+          alert(`The person '${personToDelete.name}' was already deleted from the server`)
+          
         })
   }}
 
