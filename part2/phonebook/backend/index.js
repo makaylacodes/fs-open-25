@@ -59,6 +59,11 @@ app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
 })
 
+app.get('/info', (request, response) => {
+    const dateTime = () => new Date().toString()
+    response.send(`<h1>Hello World</h1> <p>Phonebook has info for <b>${persons.length}</b> people</p>
+        <p>${dateTime()}</p>`)
+})
 // returns the entire list of persons, person objects with names, numbers, and ids
 app.get('/api/persons', (request, response) => {
     response.json(persons)
