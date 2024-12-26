@@ -42,24 +42,30 @@ const Country = ({country, weather}) => {
         alt={`Flag of ${country.name.common}`} 
         style={{ width: '150px', height: 'auto' }} 
       />
+      <Weather country={country} weather={weather} />
+     
+    </div>
+  )
+}
 
-     <div>
+const Weather = ({country, weather}) => {
+
+  const weatherDisplay = weather
+    ?(<div>
+        <p>Temperature is <span> {Math.round(weather.main.temp - 273.15)} &deg;<sup>C</sup> / {Math.round(1.8* (weather.main.temp - 273) + 32)} &deg;<sup>F</sup> </span></p>
+        <img src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`} alt="Weather icon" height={110} width={120}/> 
+        <p>Wind is {weather.wind.speed} m/s</p> 
+    </div>)
+    :(
+    <p>Loading weather data...</p>
+    )
+  return(
+    <div>
       <br />
         <h3 >Weather in {country.capital} </h3>
-        { weather
-        ?(<div>
-            <p>Temperature is <span> {Math.round(weather.main.temp - 273.15)} &deg;<sup>C</sup> / {Math.round(1.8* (weather.main.temp - 273) + 32)} &deg;<sup>F</sup> </span></p>
-            
-            <img src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`} alt="Weather icon" height={110} width={120}/> 
-            <p>Wind is {weather.wind.speed} m/s</p>
-            
-          </div>)
-        :(
-          <p>Loading weather data...</p>
-        )}
+        { weatherDisplay}
 
       </div> 
-    </div>
   )
 }
 
