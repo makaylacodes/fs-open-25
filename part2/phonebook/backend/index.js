@@ -69,13 +69,15 @@ app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
 
+
 const generateId = () => {
     const maxId = persons.length > 0
       ? Math.max(...persons.map(person => Number(person.id)))
       : 0
     return String(maxId + 1)
-  }
+}
 
+// Exercise 3.5, implement functionality to add a new person to the phonebook + generate a new ID
 app.post('/api/persons', (request, response) => {
     
     const body = request.body
@@ -97,7 +99,9 @@ app.post('/api/persons', (request, response) => {
   
     response.json(person)
   })
+
 // returns one specific person object in the persons list
+// Exercise 3.3, implement functionality to display a single entry
 app.get('/api/persons/:id', (request, response) => {
     // saves the id of the person being requested in the url
     const id = request.params.id
@@ -111,6 +115,7 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 // deletes one specific person object in the persons list
+// Exercise 3.4, implement functionality to delete one specific entry
 app.delete('/api/persons/:id', (request, response) => {
     // saves the id of the person being requested in the url
     const id = request.params.id
