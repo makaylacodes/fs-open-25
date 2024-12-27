@@ -2,6 +2,7 @@ const express = require('express')
 const morgan = require('morgan')
 
 const app = express()
+const cors = require('cors')
 
 // Middleware is a function that receives 3 params; it's a function that can 
 //be used to handle request and response objects.
@@ -13,7 +14,8 @@ morgan.token('body', (req) => {
     ? JSON.stringify(req.body)
     : ''
 })
-   
+
+app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
 
