@@ -1,8 +1,7 @@
-# React + Vite
+# Phonebook
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a vite, react app that provides a user inferface to save, view, and delete all contacts in their phonebook/contact list. 
 
-Currently, two official plugins are available:
+## Server Links
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Main page](https://part3-client-mat.netlify.app/)
