@@ -6,7 +6,15 @@ const app = express()
 // Middleware is a function that receives 3 params; it's a function that can 
 //be used to handle request and response objects.
 // Morgan is a library to simplify process, records details of each RESTful request
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+
+// Create a custom token for logging POST data
+morgan.token('body', (req) => {
+  return req.body && Object.keys(req.body).length > 0
+    ? JSON.stringify(req.body)
+    : ''
+})
+   
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
 
 let persons = [
