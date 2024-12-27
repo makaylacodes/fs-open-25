@@ -50,7 +50,7 @@ let persons = [
       {
         "name": "bew",
         "number": "32324",
-        "id": "100"
+        "id": "10"
       }
     ]
 
@@ -94,6 +94,23 @@ app.post('/api/persons', (request, response) => {
         number: body.number,
         id: generateId()
       }
+
+    if (!person.name){
+        return response.status(400).json({
+            error: 'name is missing'
+        })
+    }
+    else if (!person.number){
+        return response.status(400).json({
+            error: 'number is missing'
+        })
+        }
+    
+    else if (persons.find((p) => p.name === person.name) || persons.find((p) => p.number === person.number)){
+        return response.status(400).json({
+            error: 'name must be unique'
+        })
+    }
     console.log("This is the new person object : ", person)
     persons = persons.concat(person)
   
