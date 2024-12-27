@@ -1,6 +1,14 @@
 const express = require('express')
+const morgan = require('morgan')
+
 const app = express()
+
+// Middleware is a function that receives 3 params; it's a function that can 
+//be used to handle request and response objects.
+// Morgan is a library to simplify process, records details of each RESTful request
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use(express.json())
+
 let persons = [
       {
         "name": "Arto Hellas",
@@ -55,6 +63,12 @@ let persons = [
     ]
 
 
+
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
 app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
 })
@@ -66,6 +80,9 @@ app.get('/info', (request, response) => {
 })
 // returns the entire list of persons, person objects with names, numbers, and ids
 app.get('/api/persons', (request, response) => {
+    if(!persons){
+      app.use(unknownEndpoint)
+    }
     response.json(persons)
 })
 
