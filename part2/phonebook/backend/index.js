@@ -2,6 +2,9 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 
+// need to use "npm install dotenv" to make sure can access variables in .env file
+require('dotenv').config()
+
 const app = express()
 
 
@@ -20,61 +23,9 @@ app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
 
-let persons = [
-      {
-        "name": "Arto Hellas",
-        "number": "040-123456",
-        "id": "1"
-      },
-      {
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523",
-        "id": "2"
-      },
-      {
-        "name": "Dan Abramov",
-        "number": "12-43-234345",
-        "id": "3"
-      },
-      {
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122",
-        "id": "4"
-      },
-      {
-        "id": "5",
-        "name": "Slappy Sa",
-        "number": "453-53-4232"
-      },
-      {
-        "id": "6",
-        "name": "Angie Loew",
-        "number": "232-4334"
-      },
-      {
-        "name": "hi",
-        "number": "1234",
-        "id": "7"
-      },
-      {
-        "name": "Jamie",
-        "number": "75546",
-        "id": "8"
-      },
-      {
-        "name": "Hammajs ",
-        "number": "1232324",
-        "id": "9"
-      },
-      {
-        "name": "bew",
-        "number": "32324",
-        "id": "10"
-      }
-    ]
 
-
-
+// Establishes constructor function that creates a new JS object, Person
+const Person = require('./models/person')
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
@@ -84,25 +35,66 @@ app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
 })
 
+// Exercise 3.13, returns all person objects in the mongodb database
 app.get('/info', (request, response) => {
-    const dateTime = () => new Date().toString()
-    response.send(`<h1>Hello World</h1> <p>Phonebook has info for <b>${persons.length}</b> people</p>
+    const dateTime = () => new Date().toString({})
+
+    // Displays date, time, and number of persons in mongodb database
+    Person.find({}).countDocuments({})
+    .then(persons => {
+      console.log("Success")
+      console.log("This is persons count: ", persons)
+    
+      // What displays in the browser
+      response.send(`<h1>Hello World</h1> <p>Phonebook has info for <b>${persons}</b> people</p>
         <p>${dateTime()}</p>`)
-})
-// returns the entire list of persons, person objects with names, numbers, and ids
-app.get('/api/persons', (request, response) => {
-    if(!persons){
-      app.use(unknownEndpoint)
-    }
-    response.json(persons)
+      })
+    .catch((error) => {
+      console.error("Error fetching count:", error);
+      response.status(500).send("Internal Server Error");
+    })
+
+    
 })
 
+// returns the entire list of persons, person objects with names, numbers, and ids
+app.get('/api/persons', (request, response, next) => {
+  try{
+    Person.find({}).then(persons => {
+      if(!persons){
+        app.use(unknownEndpoint)
+      }
+      response.json(persons)
+      console.log("phonebook:")
+      persons.forEach(person => {
+        console.log(`${person.name} ${person.number}`)
+      })
+    })
+  }
+  catch (error){
+    next(error)
+  }
+})
 
 const generateId = () => {
-    const maxId = persons.length > 0
+
+  Person.find({}).countDocuments({})
+    .then(persons => {
+      console.log("This is persons count: ", persons)
+      return 30
+    })
+    .catch((error) => {
+      //displays in terminal
+      console.error("Error fetching count:", error)
+      //displays in browser
+      response.status(500).send("Internal Server Error")
+    })
+
+
+    /* const maxId = persons.length > 0
       ? Math.max(...persons.map(person => Number(person.id)))
       : 0
-    return String(maxId + 1)
+    return String(maxId + 1) */
 }
 
 // Exercise 3.5, implement functionality to add a new person to the phonebook + generate a new ID
@@ -117,11 +109,11 @@ app.post('/api/persons', (request, response) => {
       })
     }
   
-    const person = {
+    const person = new Person({
         name: body.name,
         number: body.number,
         id: generateId()
-      }
+      })
 
     if (!person.name){
         return response.status(400).json({
@@ -134,28 +126,32 @@ app.post('/api/persons', (request, response) => {
         })
         }
     
-    else if (persons.find((p) => p.name === person.name) || persons.find((p) => p.number === person.number)){
+  /*  else if (persons.find((p) => p.name === person.name) || persons.find((p) => p.number === person.number)){
         return response.status(400).json({
             error: 'name must be unique'
-        })
-    }
+        }) 
+    }*/
     console.log("This is the new person object : ", person)
-    persons = persons.concat(person)
-  
-    response.json(person)
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
   })
 
 // returns one specific person object in the persons list
-// Exercise 3.3, implement functionality to display a single entry
+// Exercise 3.13, implement functionality to display a single entry from the mongodb database
 app.get('/api/persons/:id', (request, response) => {
     // saves the id of the person being requested in the url
     const id = request.params.id
 
-    // saves the one person object that has an id that matches the id in url request
-    const person = persons.find(person => person.id === id)
+    Person.findOne({id: id}).then(person => {
+      // If no person with the id is found, send error message
+      if(!person){
+        app.use(unknownEndpoint)
+      }
 
-    // return that person object in json if the id exists, if not then 404 not found code returned
-    person ? response.json(person) : response.status(404).end()
+      // if person with id is found, then return that object
+      response.json(person) 
+    })
     
 })
 
