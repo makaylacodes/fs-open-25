@@ -112,6 +112,7 @@ const App = () => {
       return () => clearTimeout(timer); // Cleanup timer on component unmount or if errorMessage changes
     }
   }
+   // 
   useEffect(errorEffect, [errorMessage])
 
   console.log('render', persons.length, 'persons')
