@@ -67,7 +67,7 @@ app.get('/api/persons', (request, response, next) => {
       response.json(persons)
       console.log("phonebook:")
       persons.forEach(person => {
-        console.log(`${person.name} ${person.number}`)
+        console.log(`${person.name} ${person.number} ${person.id}`)
       })
       
     })
@@ -146,32 +146,39 @@ app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
 
    //  Save for when the database is redone
-   //  Person.findById(id).then(person => response.json(person))
-   Person.findOne({_id: id}).then(person => {
+    Person.findById(id).then(person => {
       // If no person with the id is found, send error message
-      if(!person){
-        app.use(unknownEndpoint)
-        console.log("Person not found")
-      }
-
+      if(person){
       // if person with id is found, then return that object
       console.log("Person was found")
       response.json(person) 
-    }) 
-    
+      }
+      else {
+        app.use(unknownEndpoint)
+        console.log("Person not found")
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: 'malformatted id' })
+    })
 })
-
+ 
 // deletes one specific person object in the persons list
-// Exercise 3.4, implement functionality to delete one specific entry
+// Exercise 3.4, implement functionality to delete one specific entry in mongodb database
 app.delete('/api/persons/:id', (request, response) => {
-    // saves the id of the person being requested in the url
-    const id = request.params.id
-
-    // update the array by filtering out the person with the id in the delete request, removes from list
-    persons = persons.filter(person => person.id !== id)
-
-    //return confirmation status, no content matching left for the id
+  const id = request.params.id
+  // saves the id of the person being requested in the url
+  Person.findByIdAndDelete(id)
+  .then(result => {
+    console.log("Person was found and deleted")
     response.status(204).end()
+  })
+  .catch(error => {
+    console.log(error)
+    response.status(400).send({ error: 'malformatted id' })
+    next(error)
+  })
 })
 
 const PORT = process.env.PORT || 3002

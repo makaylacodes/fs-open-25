@@ -122,35 +122,23 @@ const App = () => {
     event.preventDefault()
     console.log(`Add person was clicked, this is the event `, event)
 
-    // keeps the ids in numerical order
-    const maxId = persons.length > 0 ? Math.max(...persons.map(person => person.id)) : 0;
-
-    // Saves id as a string instead of int
-    const newId = (maxId + 1).toString()
-
     const capitalize = (str) => {
       return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
     }
-   // const personInit = persons.filter(person => person.name === newName)[0]
-    //const person = {...personInit}
-   // console.log("This is person id : ", person.id)
-
-    // this is {}, just one object where as person is an object in an array
+ 
 
     const personObject = {
       name: newName,
-      number: newNumber,
-      id: newId
+      number: newNumber
     }
     // For objects, important to use a comma otherwise console tries to read everything as a string instead of object with elements
     console.log(`personObject for new person is : `, personObject)
     console.log(`personObject name is : `, personObject.name)
     console.log(`personObject number is : `, personObject.number)
-    console.log(`personObject id is : `, personObject.id)
 
 
     // returns true or false
-    const samePerson = persons.some((person) => (person.name === personObject.name && person.number === newNumber));
+    const samePerson = persons.some((person) => (person.name === personObject.name && person.number === newNumber))
     console.log("This is the same person bool object ", samePerson)
     
     // If name already exists in the list, prevented from adding + a notice
@@ -242,7 +230,7 @@ const App = () => {
   }
   const deletePerson = (id) => {
     // Saves the person object with the id being deleted
-    const personToDelete = persons.find(person => person.id === id);
+    const personToDelete = persons.find(person => person.id === id)
     console.log("This is person to delete id: ", personToDelete.id)
     const capitalize = (str) => {
       return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
@@ -257,7 +245,7 @@ const App = () => {
           setErrorMessage(`${personToDelete.name} deleted in server`)
         })
         .catch(error => {
-          alert(`The person '${personToDelete.name}' was already deleted from the server`)
+          alert(`The person '${capitalize(personToDelete.name)}' was already deleted from the server`)
           
         })
   }}
