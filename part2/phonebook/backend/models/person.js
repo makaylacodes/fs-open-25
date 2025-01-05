@@ -19,16 +19,15 @@ mongoose.connect(url)
 // Person schema sent to mongodb
 const personSchema = new mongoose.Schema({
   name: String,
-  number: String,
-  id: String
+  number: String
 })
 
 // Check on this later, need it to remove the object id and v added auto in mongodb
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
       returnedObject.id = returnedObject._id.toString()
-      delete returnedObject._id
       delete returnedObject.__v
+      delete returnedObject._id
     }
   })
 

@@ -69,11 +69,13 @@ app.get('/api/persons', (request, response, next) => {
       persons.forEach(person => {
         console.log(`${person.name} ${person.number}`)
       })
+      
     })
   }
   catch (error){
     next(error)
   }
+  
 })
 
 const generateId = () => {
@@ -97,7 +99,7 @@ const generateId = () => {
     return String(maxId + 1) */
 }
 
-// Exercise 3.5, implement functionality to add a new person to the phonebook + generate a new ID
+// Exercise 3.14, implements functionality to add a new person to the phonebook database in mongodb
 app.post('/api/persons', (request, response) => {
     
     const body = request.body
@@ -111,8 +113,7 @@ app.post('/api/persons', (request, response) => {
   
     const person = new Person({
         name: body.name,
-        number: body.number,
-        id: generateId()
+        number: body.number
       })
 
     if (!person.name){
@@ -132,6 +133,7 @@ app.post('/api/persons', (request, response) => {
         }) 
     }*/
     console.log("This is the new person object : ", person)
+
     person.save().then(savedPerson => {
       response.json(savedPerson)
     })
@@ -143,15 +145,19 @@ app.get('/api/persons/:id', (request, response) => {
     // saves the id of the person being requested in the url
     const id = request.params.id
 
-    Person.findOne({id: id}).then(person => {
+   //  Save for when the database is redone
+   //  Person.findById(id).then(person => response.json(person))
+   Person.findOne({_id: id}).then(person => {
       // If no person with the id is found, send error message
       if(!person){
         app.use(unknownEndpoint)
+        console.log("Person not found")
       }
 
       // if person with id is found, then return that object
+      console.log("Person was found")
       response.json(person) 
-    })
+    }) 
     
 })
 
