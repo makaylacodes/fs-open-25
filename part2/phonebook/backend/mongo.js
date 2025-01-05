@@ -26,25 +26,33 @@ const personSchema = new mongoose.Schema({
 // Establishes constructor function that creates a new JS object, Person
 const Person = mongoose.model('Person', personSchema)
 
-// Creates new Person object
-const person = new Person({
-    name: "Jamie",
-    number: "75546",
-    id: "1"
-})
+// means that user will enter the name in the terminal when using the node cmd
+const name = process.argv[3]
 
-person.save().then(result => {
-    // sends a success message to the console when person saved
-  console.log('person saved!')
-  mongoose.connection.close()
-})
+// means that user will enter the number in the terminal when using the node cmd
+const number = process.argv[4]
 
-
-/* code block prints all the persons in the database to the console.
-// {} are empty so everything is returned, can {name} to get specific results
-Person.find({}).then(result => {
-    result.forEach(person => {
-      console.log(person)
+if (!name || !number) {
+    // code block prints all the persons in the database to the console.
+    Person.find({}).then(result => {
+        console.log("phonebook:")
+        result.forEach(person => {
+            console.log(`${person.name} ${person.number}`)
+        })
+        mongoose.connection.close()
     })
-    mongoose.connection.close()
-  })*/
+} else {
+    // Creates new Person object if the user provided name and number in terminal
+    const person = new Person({
+        name,
+        number,
+        id: "1"
+    })
+
+
+    person.save().then(result => {
+        // sends a success message to the console when person saved
+        console.log(`added ${result.name} ${result.number} to phonebook`)
+        mongoose.connection.close()
+    })
+}
