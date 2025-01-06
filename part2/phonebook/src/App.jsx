@@ -185,30 +185,28 @@ const App = () => {
     // Filters out the person with the same name as the search, only use for and update. 
     // Big reminder to use "let" so the resulting object is properly saved, missed that and caused undefined because const can't be changed
     let personToUpdate = persons.find((person) => person.name === newName) 
-    
+
+    // update the number, this will be passed to the persons object in the frontend
+    personToUpdate.number = newNumber
+
     console.log("This is person to update id: ", personToUpdate.id)
 
     const updatedPersonObject = {
-        name: newName,
-        number: newNumber,
-        id: personToUpdate.id
+        number: newNumber
       }
     const capitalize = (str) => {
         return str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase()); //utilized code from codegrepper. Capitalizes the first letter of each word
       }
     // For objects, important to use a comma otherwise console tries to read everything as a string instead of object with elements
-    console.log(`updatedPersonObject for updated person is : `, updatedPersonObject)
-    console.log(`updatedPersonObject name is : `, updatedPersonObject.name)
     console.log(`updatedPersonObject number is : `, updatedPersonObject.number)
-    console.log(`updatedPersonObject id is : `, updatedPersonObject.id)
 
     const updatePersonService = personService
-    .update(updatedPersonObject.id, updatedPersonObject)
+    .update(newName, updatedPersonObject)
     .then(() => {
-      setPersons(persons.map(person => person.id != updatedPersonObject.id ? person : updatedPersonObject));
+      setPersons(persons.map(person => person.name != newName ? person : personToUpdate));
       setName('')
       setNumber('')
-      setErrorMessage(`${updatedPersonObject.name} updated in server`)
+      setErrorMessage(`${newName} updated in server`)
     })
     .catch(error => {
       setErrorMessage(`Information of ${capitalize(updatedPersonObject.name)} was already deleted from the server`)

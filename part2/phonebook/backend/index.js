@@ -1,12 +1,10 @@
 const express = require('express')
+const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
 
 // need to use "npm install dotenv" to make sure can access variables in .env file
 require('dotenv').config()
-
-const app = express()
-
 
 // Middleware is a function that receives 3 params; it's a function that can 
 //be used to handle request and response objects.
@@ -20,16 +18,12 @@ morgan.token('body', (req) => {
 })
 
 app.use(cors())
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
-
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 // Establishes constructor function that creates a new JS object, Person
 const Person = require('./models/person')
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
@@ -50,8 +44,7 @@ app.get('/info', (request, response) => {
         <p>${dateTime()}</p>`)
       })
     .catch((error) => {
-      console.error("Error fetching count:", error);
-      response.status(500).send("Internal Server Error");
+      console.error("Error fetching count:", error)
     })
 
     
@@ -61,10 +54,8 @@ app.get('/info', (request, response) => {
 app.get('/api/persons', (request, response, next) => {
   try{
     Person.find({}).then(persons => {
-      if(!persons){
-        app.use(unknownEndpoint)
-      }
       response.json(persons)
+
       console.log("phonebook:")
       persons.forEach(person => {
         console.log(`${person.name} ${person.number} ${person.id}`)
@@ -75,32 +66,10 @@ app.get('/api/persons', (request, response, next) => {
   catch (error){
     next(error)
   }
-  
 })
 
-const generateId = () => {
-
-  Person.find({}).countDocuments({})
-    .then(persons => {
-      console.log("This is persons count: ", persons)
-      return 30
-    })
-    .catch((error) => {
-      //displays in terminal
-      console.error("Error fetching count:", error)
-      //displays in browser
-      response.status(500).send("Internal Server Error")
-    })
-
-
-    /* const maxId = persons.length > 0
-      ? Math.max(...persons.map(person => Number(person.id)))
-      : 0
-    return String(maxId + 1) */
-}
-
 // Exercise 3.14, implements functionality to add a new person to the phonebook database in mongodb
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     
     const body = request.body
     console.log("this is request.body : ", body)
@@ -111,33 +80,62 @@ app.post('/api/persons', (request, response) => {
       })
     }
   
-    const person = new Person({
-        name: body.name,
-        number: body.number
-      })
-
-    if (!person.name){
-        return response.status(400).json({
-            error: 'name is missing'
-        })
-    }
-    else if (!person.number){
-        return response.status(400).json({
-            error: 'number is missing'
-        })
-        }
-    
-  /*  else if (persons.find((p) => p.name === person.name) || persons.find((p) => p.number === person.number)){
-        return response.status(400).json({
-            error: 'name must be unique'
-        }) 
-    }*/
-    console.log("This is the new person object : ", person)
-
-    person.save().then(savedPerson => {
-      response.json(savedPerson)
+    const personObj = new Person({
+      name: body.name,
+      number: body.number
     })
+
+    if (!personObj.name){
+      return response.status(400).json({
+        error: 'name is missing'
+      })
+    }
+
+    else if (!personObj.number){
+      return response.status(400).json({
+        error: 'number is missing'
+      })
+    }
+    
+    Person.findOne({name : { $regex: new RegExp('^' + personObj.name + '$', 'i')} })
+    .then(person => {
+      console.log("This is person found with regex: ", person)
+
+      if(person){
+        return response.status(400).json({
+          error: 'name must be unique'
+        })
+      }
+
+      personObj.save().then(savedPerson => {
+        console.log("This runs is name is unique and being saved: ", savedPerson)
+        response.json(savedPerson)
+      })
+    })
+    .catch(error => {
+      next(error)
+    })
+
+    console.log("This is the new person object : ", personObj)
+
+})
+
+app.put('/api/persons/:name', (request, response, next) => {
+  // gets rid of the whitespaces in a name
+  const name = request.params.name.trim()
+  const body = request.body
+
+  const person = {
+    number: body.number
+  }
+
+  Person.findOneAndUpdate({name}, person, { new: true, runValidators: true, context: 'query' })
+  .then(updatedPerson => {
+    response.json(updatedPerson)
+    console.log("Successfully updated person")
   })
+  .catch(error => next(error))
+})
 
 // returns one specific person object in the persons list
 // Exercise 3.13, implement functionality to display a single entry from the mongodb database
@@ -154,13 +152,11 @@ app.get('/api/persons/:id', (request, response) => {
       response.json(person) 
       }
       else {
-        app.use(unknownEndpoint)
         console.log("Person not found")
       }
     })
     .catch(error => {
       console.log(error)
-      response.status(400).send({ error: 'malformatted id' })
     })
 })
  
@@ -176,10 +172,28 @@ app.delete('/api/persons/:id', (request, response) => {
   })
   .catch(error => {
     console.log(error)
-    response.status(400).send({ error: 'malformatted id' })
     next(error)
   })
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// If the server sends a 404 response, then send the json message it's an unknown endpoint
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  // Fallback for unhandled errors
+  response.status(500).send({ error: 'Internal server error' })
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3002
 
