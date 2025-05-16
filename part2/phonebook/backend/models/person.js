@@ -6,9 +6,9 @@ const mongoose = require('mongoose')
 // Connection string provided by mongodb when created
 const url =  process.env.MONGODB_URI
 
-mongoose.set('strictQuery',false)
+mongoose.set('strictQuery',false) 
 
-mongoose.connect(url)
+mongoose.connect(url)        
     .then(result => {
         console.log('connected to MongoDB')
     })
@@ -18,12 +18,20 @@ mongoose.connect(url)
 
 // Person schema sent to mongodb
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String
+  name: {
+    type: String,
+    minLength:3,
+    required: true
+  },
+  number: {   
+    type: String,
+    minLength:1,
+    required: true 
+  } 
 })
 
 // Check on this later, need it to remove the object id and v added auto in mongodb
-personSchema.set('toJSON', {
+personSchema.set('toJSON', {   
     transform: (document, returnedObject) => {
       returnedObject.id = returnedObject._id.toString()
       delete returnedObject.__v

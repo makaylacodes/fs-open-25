@@ -142,7 +142,7 @@ const App = () => {
     const samePerson = persons.some((person) => (person.name === personObject.name && person.number === newNumber))
     console.log("This is the same person bool object ", samePerson)
     
-    // If name already exists in the list, prevented from adding + a notice
+    // If name and phone number already exists in the list, prevented from adding + a notice
     if (samePerson) {
       setErrorMessage(`Person '${capitalize(personObject.name)}' is already in server`)
       alert(`${capitalize(personObject.name)} is already added to phonebook`)
@@ -153,7 +153,7 @@ const App = () => {
     // returns true or false
     const sameName = persons.some((person) => person.name === personObject.name );
     console.log("This is the same NAME bool object ", sameName)
-    // If name already exists in the list, 
+    // If name already exists in the list and the phone number is different, 
     if (sameName){
       // Gives option to update the contact
       if (window.confirm(`${capitalize(newName)} is already added to the phonebook. Replace the old number with the new one?`)){
@@ -162,7 +162,7 @@ const App = () => {
       // if clicked no, then the fields stay populated but server is not updated
       return // Exit the function 
     } 
-
+ 
    const addPersonService = personService
     .create(personObject)
     .then(() => {
@@ -170,15 +170,18 @@ const App = () => {
       setName('')
       setNumber('')
       setErrorMessage(`Added ${personObject.name}`)
-    })
+    }) 
     .catch(error => {
+      let message = error.response.data.error;
+      console.log(message); 
+      setErrorMessage(`${message}`)
       alert(`There was an error adding to the server`);
     }) 
 
     console.log("Successfully added person")
     return addPersonService
   }
-
+ 
   const updatePerson = () => {
     console.log("UpdatePerson function was successfully called ")
     
