@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
+const path = require('path')
 
 // need to use "npm install dotenv" to make sure can access variables in .env file
 require('dotenv').config()
@@ -17,16 +18,21 @@ morgan.token('body', (req) => {
     : ''
 })
 
+// Serves up the static file for the phonebook frontend React application
+app.use(express.static(path.join(__dirname, 'dist')))
+
 app.use(cors())
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+
 
 // Establishes constructor function that creates a new JS object, Person
 const Person = require('./models/person')
 
 
 app.get('/', (request, response) => {
-    response.send('<h1>Hello World</h1>')
+    response.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
 // Exercise 3.13, returns all person objects in the mongodb database
@@ -195,7 +201,7 @@ const errorHandler = (error, request, response, next) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)

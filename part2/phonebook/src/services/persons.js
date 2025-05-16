@@ -1,5 +1,6 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3002/api/persons'
+// The URL where the server is hosted and returns the persons list
+const baseUrl = 'https://part3-backend-gt8j.onrender.com/api/persons'
 
 const getAll = () => {
   return axios.get(baseUrl)
