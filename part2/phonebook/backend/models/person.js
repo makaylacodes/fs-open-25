@@ -9,12 +9,12 @@ const url =  process.env.MONGODB_URI
 mongoose.set('strictQuery',false) 
 
 mongoose.connect(url)        
-    .then(result => {
-        console.log('connected to MongoDB')
-    })
-    .catch(error => {
-        console.log("Error connecting to MongoDB: ", error.message)
-    })
+  .then(result => {
+    console.log('connected to MongoDB')
+  })
+  .catch(error => {
+    console.log("Error connecting to MongoDB: ", error.message)
+  })
 
 // Person schema sent to mongodb
 const personSchema = new mongoose.Schema({
@@ -36,12 +36,12 @@ const personSchema = new mongoose.Schema({
 
 // Check on this later, need it to remove the object id and v added auto in mongodb
 personSchema.set('toJSON', {   
-    transform: (document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString()
-      delete returnedObject.__v
-      delete returnedObject._id
-    }
-  })
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject.__v
+    delete returnedObject._id
+  }
+})
 
 // Establishes constructor function that creates a new JS object, Person and exports to index.js
 module.exports = mongoose.model('Person', personSchema)
